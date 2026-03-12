@@ -7,10 +7,11 @@ from typing import List, Dict, Any, Optional
 from dotenv import load_dotenv
 
 import chromadb
-from langchain_openai import OpenAIEmbeddings, ChatOpenAI
+from langchain_ollama import OllamaEmbeddings, ChatOllama
 from langchain_community.vectorstores import Chroma
-from langchain.prompts import PromptTemplate
-from langchain.chains import RetrievalQA
+from langchain_core.prompts import PromptTemplate
+from langchain_core.output_parsers import StrOutputParser
+from langchain_core.runnables import RunnablePassthrough
 
 
 class IPCRAGEngine:
@@ -23,17 +24,15 @@ class IPCRAGEngine:
         self.persist_directory = persist_directory
         self.collection_name = collection_name
         
-        # Initialize embeddings
-        self.embeddings = OpenAIEmbeddings(
-            model=os.getenv('EMBEDDING_MODEL', 'text-embedding-3-small'),
-            openai_api_key=os.getenv('OPENAI_API_KEY')
+        # Initialize embeddings (local Ollama)
+        self.embeddings = OllamaEmbeddings(
+            model=os.getenv('EMBEDDING_MODEL', 'nomic-embed-text')
         )
         
-        # Initialize LLM
-        self.llm = ChatOpenAI(
-            model=os.getenv('LLM_MODEL', 'gpt-4o-mini'),
-            temperature=0.3,  # Lower temperature for more factual responses
-            openai_api_key=os.getenv('OPENAI_API_KEY')
+        # Initialize LLM (local Ollama)
+        self.llm = ChatOllama(
+            model=os.getenv('LLM_MODEL', 'llama3.2'),
+            temperature=0.3  # Lower temperature for more factual responses
         )
         
         # Load vector store
@@ -177,27 +176,27 @@ Answer:""",
         
         # Create retriever with filters
         retriever = self.vectorstore.as_retriever(search_kwargs=search_kwargs)
-        
-        # Create QA chain
-        qa_chain = RetrievalQA.from_chain_type(
-            llm=self.llm,
-            chain_type="stuff",
-            retriever=retriever,
-            return_source_documents=True,
-            chain_type_kwargs={"prompt": prompt}
-        )
-        
+
+        # Retrieve source documents for citation
+        source_docs = retriever.invoke(question)
+
+        # Format context from retrieved docs
+        context = "\n\n".join([doc.page_content for doc in source_docs])
+
+        # Build LCEL chain: prompt | llm | output parser
+        chain = prompt | self.llm | StrOutputParser()
+
         # Get answer
-        result = qa_chain.invoke({"query": question})
-        
+        answer = chain.invoke({"context": context, "question": question})
+
         # Format response
         response = {
             'question': question,
-            'answer': result['result'],
-            'sources': self._format_sources(result['source_documents']),
+            'answer': answer,
+            'sources': self._format_sources(source_docs),
             'mode': mode
         }
-        
+
         return response
     
     def _format_sources(self, source_documents: List) -> List[Dict[str, Any]]:

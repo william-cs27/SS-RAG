@@ -64,22 +64,10 @@ def setup_env_file():
     with open(env_example, 'r') as src:
         content = src.read()
     
-    # Get API key from user
-    print("\n  OpenAI API Key Setup:")
-    print("  You can get your API key from: https://platform.openai.com/api-keys")
-    
-    api_key = input("  Enter your OpenAI API key (or press Enter to skip): ").strip()
-    
-    if api_key:
-        content = content.replace('your_openai_api_key_here', api_key)
-        print("  ✅ API key configured")
-    else:
-        print("  ⚠️  No API key provided - you'll need to add it manually to .env")
-    
     with open(env_file, 'w') as dst:
         dst.write(content)
     
-    print(f"  ✅ Created .env file")
+    print(f"  ✅ Created .env file (using Ollama - no API key needed)")
     return True
 
 
@@ -175,8 +163,10 @@ def main():
         print("   - Radiant Life materials")
         print("   - Christian Identity curriculum")
     
-    print("\n2. Verify your OpenAI API key in .env file")
-    print("   Open .env and check that OPENAI_API_KEY is set")
+    print("\n2. Start Ollama and pull models:")
+    print("   ollama serve")
+    print("   ollama pull nomic-embed-text")
+    print("   ollama pull llama3.2")
     
     print("\n3. Build the database:")
     print("   python indexer.py")
