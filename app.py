@@ -252,7 +252,7 @@ def main():
         # You can add database statistics here
         st.metric("Total Documents", "Available in DB")
         st.metric("Grades Covered", "1-13")
-        st.metric("Curricula", "IPC, Radiant Life, Christian Identity")
+        st.metric("Curricula", "IPC")
 
 
 if __name__ == "__main__":
