@@ -11,14 +11,12 @@ A complete Retrieval-Augmented Generation (RAG) system for IPC Eastern Region Su
   - 📜 **Verse Lookup** - Find and reference Bible verses
 
 - **Smart Filtering:**
-  - Filter by curriculum (IPC, Radiant Life, Christian Identity)
+  - Filter by curriculum - IPC (Still in progress for other curriculum)
   - Filter by grade (1-13)
   - Filter by document type (textbook, teacher guide, student guide)
 
 - **Multiple Interfaces:**
   - Web UI (Streamlit)
-  - Command Line Interface
-  - Python API
 
 ## 🏗️ Architecture
 
@@ -38,7 +36,7 @@ PDFs → Parser → Chunks → Embeddings → ChromaDB → RAG Engine → User
 
 - Python 3.8+
 - OpenAI API key
-- PDF files of IPC curriculum (already downloaded)
+- PDF files of IPC curriculum
 
 ## 🚀 Setup Instructions
 
@@ -95,131 +93,9 @@ This will:
 - Generate embeddings
 - Build the vector database
 
-**Expected output:**
-```
-Found 25 PDF files to index
-Parsing PDFs: 100%|████████████████| 25/25
-Total chunks extracted: 2,847
-
-✅ Successfully indexed 2,847 chunks
-
-INDEXING STATISTICS
-By Curriculum:
-  IPC: 1,234 chunks
-  Radiant Life: 987 chunks
-  Christian Identity: 626 chunks
-```
-
 **Time estimate:** ~5-15 minutes depending on number of PDFs
 
 **Cost estimate:** ~$0.01-0.05 for embeddings
-
-## 💻 Usage
-
-### Option 1: Web Interface (Recommended)
-
-```bash
-streamlit run app.py
-```
-
-Open browser to `http://localhost:8501`
-
-**Features:**
-- Clean, intuitive interface
-- Mode selection dropdown
-- Advanced filters
-- Source citations
-- Example questions
-
-### Option 2: Command Line Interface
-
-**Interactive Mode:**
-```bash
-python cli.py
-```
-
-Commands:
-```
-> What is the memory verse for Grade 5 Lesson 3?
-> :mode exam_prep
-> :grade 8
-> :curriculum IPC
-> :clear
-> quit
-```
-
-**Quick Query:**
-```bash
-# Simple query
-python cli.py "What does Grade 6 teach about baptism?"
-
-# With filters
-python cli.py "List all memory verses" --mode verse_lookup --grade 7 --curriculum IPC
-```
-
-### Option 3: Python API
-
-```python
-from query_engine import IPCRAGEngine
-
-# Initialize
-engine = IPCRAGEngine()
-
-# Query
-result = engine.query(
-    question="What is the memory verse for Grade 5 Lesson 3?",
-    mode='verse_lookup',
-    filters={'grade': 5, 'curriculum': 'IPC'},
-    k=5
-)
-
-print(result['answer'])
-print(result['sources'])
-
-# Get all memory verses for a grade
-verses = engine.search_memory_verses(grade=7, curriculum='IPC')
-
-# Get specific lesson content
-lesson = engine.get_lesson_content(grade=5, lesson_number=3, curriculum='IPC')
-```
-
-## 📊 Query Examples
-
-### Student Questions
-
-```
-What is salvation?
-Explain the Holy Trinity in simple terms
-What does Lesson 7 teach about prayer?
-Give me a summary of Grade 8 Lesson 5
-```
-
-### Teacher Questions
-
-```
-What teaching activities are suggested for Grade 6?
-How should I teach baptism to Grade 4 students?
-What topics does the Middler level cover?
-Show me cross-references between IPC and Radiant Life Grade 3
-```
-
-### Exam Prep Questions
-
-```
-List all memory verses for Grade 9
-Give me 10 practice questions for Grade 7 exam
-What are the key concepts for Grade 11?
-Create a study guide for Grade 6
-```
-
-### Verse Lookup Questions
-
-```
-Find all verses about love
-What is John 3:16 in the curriculum?
-Show me all verses from Psalms
-Which lessons cover Romans 8:28?
-```
 
 ## 🎛️ Configuration Options
 
