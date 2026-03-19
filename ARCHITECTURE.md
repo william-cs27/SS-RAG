@@ -34,9 +34,8 @@
                            ▼
     ┌──────────────────────────────────────────────────┐
     │    Embedding Generation                           │
-    │  Model: text-embedding-3-small                    │
-    │  Dimensions: 1,536                                │
-    │  Cost: ~$0.02 per 1M tokens                       │
+    │  Model: models/embedding-001 (Google)              │
+    │  Dimensions: 768                                   │
     └──────────────────────┬───────────────────────────┘
                            │
                            ▼
@@ -61,7 +60,7 @@
                            ▼
     ┌──────────────────────────────────────────────────┐
     │  Query Embedding                                  │
-    │  Same model: text-embedding-3-small               │
+    │  Same model: models/embedding-001                  │
     └──────────────────────┬───────────────────────────┘
                            │
                            ▼
@@ -81,7 +80,7 @@
                            ▼
     ┌──────────────────────────────────────────────────┐
     │  LLM Generation                                   │
-    │  Model: gpt-4o-mini                               │
+    │  Model: gemini-2.0-flash                          │
     │  Temperature: 0.3 (factual)                       │
     │  Mode-specific prompt templates                   │
     └──────────────────────┬───────────────────────────┘
@@ -97,52 +96,34 @@
 
 ## Model Specifications
 
-### Embedding Model: text-embedding-3-small
+### Embedding Model: models/embedding-001 (Google)
 
 **Why chosen:**
-- Excellent quality-to-cost ratio
+- Excellent quality from Google's embedding models
 - Strong performance on educational/religious text
 - API-based = no local GPU needed
 - Fast inference (<100ms per query)
 
 **Specifications:**
-- Dimensions: 1,536
-- Context window: 8,191 tokens
-- Cost: $0.020 per 1M tokens
-- Encoding: cl100k_base (tiktoken)
+- Dimensions: 768
+- Provider: Google Generative AI
 
 **Performance on IPC content:**
 - Excellent semantic understanding of biblical terms
 - Good at distinguishing between similar concepts
 - Handles grade-level content variation well
 
-**Alternatives considered:**
-1. `text-embedding-3-large` (3,072 dim)
-   - 6.5x more expensive
-   - Marginal quality improvement
-   - Verdict: Overkill for this use case
-
-2. `BAAI/bge-large-en-v1.5` (1,024 dim)
-   - Free (local)
-   - Requires GPU
-   - Slightly lower quality
-   - Verdict: Good for offline/private deployments
-
-### LLM: gpt-4o-mini
+### LLM: gemini-2.0-flash (Google)
 
 **Why chosen:**
 - Excellent instruction following
 - Strong at staying grounded in retrieved context
 - Fast response time (1-2 seconds)
-- Cost-efficient for production use
 - Good at handling educational content
 
 **Specifications:**
-- Context window: 128K tokens
-- Input cost: $0.150 per 1M tokens
-- Output cost: $0.600 per 1M tokens
+- Context window: 1M tokens
 - Temperature: 0.3 (set for factual responses)
-- Max tokens: Unlimited (we let it decide)
 
 **Performance characteristics:**
 - Hallucination rate: Very low with RAG context
@@ -150,23 +131,10 @@
 - Grounding: Strong tendency to stick to provided context
 - Tone adaptation: Good at matching mode (student/teacher)
 
-**Alternatives considered:**
-1. `gpt-4o` 
-   - 16.7x more expensive input
-   - 16.7x more expensive output
+**Alternatives:**
+1. `gemini-2.0-pro`
    - Better reasoning, but unnecessary for RAG
-   - Verdict: Overkill
-
-2. `claude-3-5-haiku-20241022`
-   - Similar cost
-   - Excellent quality
-   - Verdict: Equally good alternative
-
-3. `llama-3.1-8b-instruct` (via Ollama)
-   - Free (local)
-   - Requires 8GB+ VRAM
-   - 5-30s response time
-   - Verdict: Good for offline use
+   - Verdict: Overkill for this use case
 
 ### Vector Database: ChromaDB
 
@@ -391,15 +359,14 @@ Instructions:
 ### Data Privacy
 
 1. **Local storage** - Vector DB is local, no cloud upload
-2. **API calls** - Only embeddings and prompts sent to OpenAI
-3. **No training** - Data not used for model training (per OpenAI policy)
-4. **Deletion** - Delete `chroma_db/` to remove all indexed data
+2. **API calls** - Only embeddings and prompts sent to Google
+3. **Deletion** - Delete `chroma_db/` to remove all indexed data
 
 ### API Key Security
 
 ```bash
 # .env file (never commit to git)
-OPENAI_API_KEY=sk-...
+GOOGLE_API_KEY=your-key-here
 
 # .gitignore includes:
 .env
@@ -464,9 +431,9 @@ cache = {
    python indexer.py
    ```
 
-2. **Monitor API costs**
-   - Check OpenAI dashboard weekly
-   - Set billing alerts
+2. **Monitor API usage**
+   - Check Google AI Studio dashboard
+   - Set billing alerts if applicable
 
 3. **Backup database**
    ```bash
@@ -509,7 +476,7 @@ cache = {
 - [ ] Auto-quiz generator
 - [ ] Progress tracking
 - [ ] Mobile app
-- [ ] Offline mode with local LLM
+- [ ] Offline mode with local LLM (e.g., Ollama)
 
 ### Phase 4 (Long-term)
 - [ ] Multi-church deployment
