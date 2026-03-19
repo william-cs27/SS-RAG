@@ -1,6 +1,6 @@
 # Core RAG dependencies
 langchain
-langchain-ollama
+langchain-google-genai
 langchain-community
 chromadb
 
@@ -12,9 +12,6 @@ pdfplumber==0.11.0
 python-dotenv==1.0.1
 tqdm==4.66.2
 pandas==2.2.2
-
-# Optional: Local LLM support
-# ollama==0.1.8
 
 # Web interface (optional)
 streamlit==1.33.0

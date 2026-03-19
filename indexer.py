@@ -10,7 +10,7 @@ from tqdm import tqdm
 
 import chromadb
 from chromadb.config import Settings
-from langchain_ollama import OllamaEmbeddings
+from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from langchain_community.vectorstores import Chroma
 
 from pdf_parser import IPCPDFParser, DocumentChunk
@@ -23,11 +23,12 @@ class RAGIndexer:
         load_dotenv()
         
         self.persist_directory = persist_directory
-        self.embedding_model = os.getenv('EMBEDDING_MODEL', 'nomic-embed-text')
+        self.embedding_model = os.getenv('EMBEDDING_MODEL', 'models/embedding-001')
         
-        # Initialize embeddings (local Ollama)
-        self.embeddings = OllamaEmbeddings(
-            model=self.embedding_model
+        # Initialize embeddings (Google Generative AI)
+        self.embeddings = GoogleGenerativeAIEmbeddings(
+            model=self.embedding_model,
+            google_api_key=os.getenv('GOOGLE_API_KEY')
         )
         
         # Initialize ChromaDB client
@@ -158,7 +159,7 @@ def main():
     print(f"\nConfiguration:")
     print(f"  PDF Directory: {pdf_directory}")
     print(f"  Vector DB Directory: {persist_directory}")
-    print(f"  Embedding Model: {os.getenv('EMBEDDING_MODEL', 'nomic-embed-text')} (Ollama)")
+    print(f"  Embedding Model: {os.getenv('EMBEDDING_MODEL', 'models/embedding-001')} (Google)")
     print(f"  Chunk Size: {os.getenv('CHUNK_SIZE', 600)}")
     print(f"  Chunk Overlap: {os.getenv('CHUNK_OVERLAP', 100)}")
     print()

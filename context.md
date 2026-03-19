@@ -2,7 +2,7 @@
 
 ## What is this?
 
-A **fully offline RAG (Retrieval-Augmented Generation) system** for the IPC (International Pentecostal Church) Sunday School curriculum. It lets students and teachers ask questions about their curriculum PDFs (textbooks, teacher guides) and get accurate, cited answers using a local LLM — no internet or API keys required.
+A **RAG (Retrieval-Augmented Generation) system** for the IPC (International Pentecostal Church) Sunday School curriculum. It lets students and teachers ask questions about their curriculum PDFs (textbooks, teacher guides) and get accurate, cited answers powered by Google Gemini.
 
 ---
 
@@ -10,11 +10,11 @@ A **fully offline RAG (Retrieval-Augmented Generation) system** for the IPC (Int
 
 | Layer | Tool | Notes |
 |---|---|---|
-| Embeddings | `nomic-embed-text` via Ollama | Local, no API key |
-| LLM | `llama3.2` via Ollama | Local, runs offline |
+| Embeddings | `models/embedding-001` via Google | Requires `GOOGLE_API_KEY` |
+| LLM | `gemini-2.0-flash` via Google | Fast, high quality |
 | Vector DB | ChromaDB | Persistent, stored in `chroma_db/` |
 | PDF Parsing | PyMuPDF + pdfplumber | Extracts text + lesson structure |
-| Framework | LangChain (LCEL) | `langchain-core`, `langchain-ollama`, `langchain-community` |
+| Framework | LangChain (LCEL) | `langchain-core`, `langchain-google-genai`, `langchain-community` |
 | Web UI | Streamlit (`app.py`) | Optional |
 | CLI | Python (`cli.py`) | Primary interface |
 | Conda Env | `ss-rag` | Python 3.11 |
@@ -44,10 +44,11 @@ SS RAG/
 ## Configuration (`.env`)
 
 ```env
+GOOGLE_API_KEY=your-api-key-here
 CHROMA_PERSIST_DIRECTORY=./chroma_db
 PDF_DIRECTORY=./pdfs
-EMBEDDING_MODEL=nomic-embed-text
-LLM_MODEL=llama3.2
+EMBEDDING_MODEL=models/embedding-001
+LLM_MODEL=gemini-2.0-flash
 CHUNK_SIZE=600
 CHUNK_OVERLAP=100
 ```
@@ -60,10 +61,8 @@ CHUNK_OVERLAP=100
 # 1. Activate environment
 conda activate ss-rag
 
-# 2. Start Ollama and pull models (one-time)
-ollama serve
-ollama pull nomic-embed-text
-ollama pull llama3.2
+# 2. Set your Google API key in .env (one-time)
+# Get a key from: https://aistudio.google.com/apikey
 
 # 3. Add PDFs to pdfs/ then build the vector DB (one-time or when PDFs change)
 python indexer.py
@@ -110,14 +109,15 @@ streamlit run app.py       # Web interface
 | Branch | Purpose |
 |---|---|
 | `Initial` | Original OpenAI-based implementation |
-| `local` | Current — fully local Ollama-based implementation |
+| `local` | Previous — fully local Ollama-based implementation |
+| `gemini` | Current — Google Gemini API-based implementation |
 
 ---
 
 ## Key Design Decisions
 
-- **Fully offline:** Replaced OpenAI (`text-embedding-3-small`, `gpt-4o-mini`) with Ollama (`nomic-embed-text`, `llama3.2`)
-- **LCEL pipeline:** Upgraded from deprecated `RetrievalQA` chain to modern `retriever.invoke() → prompt | llm | StrOutputParser()` pattern
+- **Google Gemini API:** Uses `models/embedding-001` for embeddings and `gemini-2.0-flash` for generation
+- **LCEL pipeline:** Modern `retriever.invoke() → prompt | llm | StrOutputParser()` pattern
 - **Large files gitignored:** `pdfs/` and `chroma_db/` excluded from git; regenerate DB with `python indexer.py`
 
 ---

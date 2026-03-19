@@ -67,7 +67,7 @@ def setup_env_file():
     with open(env_file, 'w') as dst:
         dst.write(content)
     
-    print(f"  ✅ Created .env file (using Ollama - no API key needed)")
+    print(f"  ✅ Created .env file (set your GOOGLE_API_KEY before running)")
     return True
 
 
@@ -163,10 +163,9 @@ def main():
         print("   - Radiant Life materials")
         print("   - Christian Identity curriculum")
     
-    print("\n2. Start Ollama and pull models:")
-    print("   ollama serve")
-    print("   ollama pull nomic-embed-text")
-    print("   ollama pull llama3.2")
+    print("\n2. Set your Google API key in .env:")
+    print("   Get a key from: https://aistudio.google.com/apikey")
+    print("   Then set GOOGLE_API_KEY=your-key-here in .env")
     
     print("\n3. Build the database:")
     print("   python indexer.py")
