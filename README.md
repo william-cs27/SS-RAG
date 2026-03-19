@@ -23,19 +23,19 @@ A complete Retrieval-Augmented Generation (RAG) system for IPC Eastern Region Su
 ```
 PDFs → Parser → Chunks → Embeddings → ChromaDB → RAG Engine → User
                                            ↓
-                                      OpenAI API
+                                     Google Gemini API
 ```
 
 **Key Components:**
 - **PDF Parser** - Extracts text and metadata from curriculum PDFs
-- **Embeddings** - OpenAI `text-embedding-3-small` for semantic search
+- **Embeddings** - Google `models/embedding-001` for semantic search
 - **Vector DB** - ChromaDB for local storage
-- **LLM** - GPT-4o-mini for answer generation
+- **LLM** - Gemini 2.0 Flash for answer generation
 
 ## 📋 Prerequisites
 
 - Python 3.8+
-- OpenAI API key
+- Google API key ([get one here](https://aistudio.google.com/apikey))
 - PDF files of IPC curriculum
 
 ## 🚀 Setup Instructions
@@ -54,13 +54,13 @@ cp .env.example .env
 
 # Edit .env and add your API key
 # Required:
-OPENAI_API_KEY=sk-your-key-here
+GOOGLE_API_KEY=your-api-key-here
 
 # Optional configurations:
 PDF_DIRECTORY=./pdfs                    # Where your PDF files are
 CHROMA_PERSIST_DIRECTORY=./chroma_db   # Where to store the database
-EMBEDDING_MODEL=text-embedding-3-small  # Embedding model
-LLM_MODEL=gpt-4o-mini                  # Generation model
+EMBEDDING_MODEL=models/embedding-001   # Embedding model
+LLM_MODEL=gemini-2.0-flash             # Generation model
 CHUNK_SIZE=600                          # Characters per chunk
 CHUNK_OVERLAP=100                       # Overlap between chunks
 ```
@@ -95,38 +95,27 @@ This will:
 
 **Time estimate:** ~5-15 minutes depending on number of PDFs
 
-**Cost estimate:** ~$0.01-0.05 for embeddings
-
 ## 🎛️ Configuration Options
 
 ### Embedding Models
 
-**Current:** `text-embedding-3-small`
-- Dimensions: 1,536
-- Cost: $0.02 per 1M tokens
+**Current:** `models/embedding-001` (Google)
+- Dimensions: 768
 - Quality: Excellent
 
-**Alternative:** `text-embedding-3-large`
-- Dimensions: 3,072
-- Cost: $0.13 per 1M tokens
-- Quality: Best (overkill for this use case)
+**Alternative:** `models/text-embedding-004`
+- Dimensions: 768
+- Quality: Best
 
 ### LLM Models
 
-**Current:** `gpt-4o-mini`
-- Cost: $0.15/1M input, $0.60/1M output tokens
+**Current:** `gemini-2.0-flash`
 - Speed: Fast (1-2s)
 - Quality: Excellent for RAG
 
-**Alternative:** `gpt-4o`
-- Cost: $2.50/1M input, $10/1M output tokens
+**Alternative:** `gemini-2.0-pro`
 - Speed: Slower (3-5s)
 - Quality: Best (unnecessary for this use case)
-
-**Local option:** `llama-3.1-8b-instruct` via Ollama
-- Cost: Free
-- Speed: 5-30s (depends on hardware)
-- Requires: GPU with 8GB+ VRAM
 
 ### Chunking Strategy
 
@@ -141,26 +130,10 @@ CHUNK_SIZE=600        # Increase for more context per chunk
 CHUNK_OVERLAP=100     # Increase to reduce boundary issues
 ```
 
-## 💰 Cost Estimates
-
-### One-time Indexing (25 PDFs, ~5,000 pages)
-- Embeddings: ~$0.05
-- Time: 10-15 minutes
-
-### Per-Query Costs
-- Embedding query: ~$0.00001 (negligible)
-- LLM generation: ~$0.001-0.003 per query
-- **Average:** ~$0.002 per query
-
-### Monthly Usage (100 students, 5 queries each)
-- 500 queries/month
-- Total cost: ~$1-2/month
-
 ## 🔒 Data Privacy
 
 - **Local storage:** Vector database stored locally in `chroma_db/`
-- **API calls:** Only query embeddings and LLM generation go to OpenAI
-- **No training:** Your data is NOT used to train OpenAI models
+- **API calls:** Only query embeddings and LLM generation go to Google
 - **Deletion:** Delete `chroma_db/` folder to remove all indexed data
 
 ## 🐛 Troubleshooting
@@ -173,10 +146,10 @@ pip install -r requirements.txt
 ### "Error loading engine"
 Make sure you've run `python indexer.py` first to build the database.
 
-### "OPENAI_API_KEY not found"
+### "GOOGLE_API_KEY not found"
 Add your API key to `.env` file:
 ```bash
-OPENAI_API_KEY=sk-your-key-here
+GOOGLE_API_KEY=your-api-key-here
 ```
 
 ### "No PDF files found"
@@ -199,17 +172,12 @@ Process PDFs in batches:
 
 ### For Faster Queries
 - Reduce `k` to 3-4 chunks
-- Use `gpt-4o-mini` instead of `gpt-4o`
+- Use `gemini-2.0-flash`
 
 ### For Better Accuracy
 - Increase `k` to 8-10 chunks
 - Add metadata filters
-- Use `gpt-4o` for complex questions
-
-### For Lower Cost
-- Use local embeddings: `BAAI/bge-large-en-v1.5`
-- Use Ollama for local LLM
-- Reduce `k` to minimum needed
+- Use `gemini-2.0-pro` for complex questions
 
 ## 🔄 Updating the Database
 
