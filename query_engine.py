@@ -7,7 +7,7 @@ from typing import List, Dict, Any, Optional
 from dotenv import load_dotenv
 
 import chromadb
-from langchain_ollama import OllamaEmbeddings, ChatOllama
+from langchain_google_genai import GoogleGenerativeAIEmbeddings, ChatGoogleGenerativeAI
 from langchain_community.vectorstores import Chroma
 from langchain_core.prompts import PromptTemplate
 from langchain_core.output_parsers import StrOutputParser
@@ -24,14 +24,16 @@ class IPCRAGEngine:
         self.persist_directory = persist_directory
         self.collection_name = collection_name
         
-        # Initialize embeddings (local Ollama)
-        self.embeddings = OllamaEmbeddings(
-            model=os.getenv('EMBEDDING_MODEL', 'nomic-embed-text')
+        # Initialize embeddings (Google Generative AI)
+        self.embeddings = GoogleGenerativeAIEmbeddings(
+            model=os.getenv('EMBEDDING_MODEL', 'models/embedding-001'),
+            google_api_key=os.getenv('GOOGLE_API_KEY')
         )
         
-        # Initialize LLM (local Ollama)
-        self.llm = ChatOllama(
-            model=os.getenv('LLM_MODEL', 'llama3.2'),
+        # Initialize LLM (Google Gemini)
+        self.llm = ChatGoogleGenerativeAI(
+            model=os.getenv('LLM_MODEL', 'gemini-2.0-flash'),
+            google_api_key=os.getenv('GOOGLE_API_KEY'),
             temperature=0.3  # Lower temperature for more factual responses
         )
         
